@@ -17,6 +17,7 @@ util/buildscripts/support
 Resources/*.png
 qrenderdoc/Makefile*
 *.exe
+*.apk
 *.aps
 *.ilk
 *.manifest
