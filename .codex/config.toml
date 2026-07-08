@@ -1,0 +1,4 @@
+[mcp_servers.notifications]
+enabled = true
+command = "mcp-notifications"
+args = []
