@@ -1195,6 +1195,39 @@ struct AndroidController : public IDeviceProtocolHandler
            Android::CheckAndroidServerVersion(deviceID, Android::ABI::armeabi_v7a) ==
                Android::AndroidVersionCheckResult::NotInstalled);
 
+      if(installedOK && apiVersion >= 30)
+      {
+        for(Android::ABI abi : abis)
+        {
+          rdcstr packageName = GetRenderDocPackageForABI(abi);
+          bool packageInstalled = false;
+
+          for(rdcstr package : packages)
+          {
+            package.trim();
+            if(package == "package:" + packageName)
+            {
+              packageInstalled = true;
+              break;
+            }
+          }
+
+          // Android 12+ 可能只支持 64 位。此时即使设备报告兼容 32 位，也可能只安装了
+          // 64 位服务端。
+          if(!packageInstalled)
+            continue;
+
+          if(Android::CheckAndroidServerInstallPermissions(deviceID, packageName, apiVersion) !=
+             Android::AndroidInstallPermissionCheckResult::Correct)
+          {
+            RDCWARN("Installed RenderDoc server %s is missing required queryable permissions",
+                    packageName.c_str());
+            installedOK = false;
+            break;
+          }
+        }
+      }
+
       if(!installedOK)
       {
         // if there was any existing package, remove it
